@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Radosgw.AdminAPI.Models;
 
 namespace Radosgw.AdminAPI
 {
@@ -566,6 +567,25 @@ namespace Radosgw.AdminAPI
         {
             var rets = await SendRequestAsync("GET", "/metadata/bucket", timeout: timeout);
             return JsonConvert.DeserializeObject<IList<string>>(rets);
+        }
+
+        public async Task<IList<string>> ListBucketsAsync(string uid, string tenant = null, TimeSpan ? timeout = null)
+        {
+            var req = new Dictionary<string, string>();
+            req.Add("uid", UserWithTenant(uid, tenant));
+
+            var rets = await SendRequestAsync("GET", "/bucket", req, timeout: timeout);
+            return JsonConvert.DeserializeObject<IList<string>>(rets);
+        }
+
+        public async Task<IList<BucketInfo>> GetBucketInfoAsync(string uid, string tenant = null, TimeSpan? timeout = null)
+        {
+            var req = new Dictionary<string, string>();
+            req.Add("uid", UserWithTenant(uid, tenant));
+            req.Add("stats", "true");
+
+            var rets = await SendRequestAsync("GET", "/bucket/info?stats=", req, timeout: timeout);
+            return JsonConvert.DeserializeObject<IList<BucketInfo>>(rets);
         }
     }
 }
